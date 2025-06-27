@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="SCFlow: Implicitly Learning Style and Content Disentanglement with Flow Models">
+  <meta name="keywords" content="Content and Style Disentanglement, Emergent Property, Flow Matching, New Dataset">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <title>SCFlow: Implicitly Learning Style and Content Disentanglement with Flow Models</title>
+  <style>
+    .container.is-max-desktop {
+      max-width: 1300px;
+    }
+  </style>
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-1FWSVCGZTG"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-1FWSVCGZTG');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="static/css/twentytwenty.css">
+  <link rel="stylesheet" href="static/css/index.css">
+  <link rel="icon" href="static/images/radio.png">
+
+  <script src="static/js/jquery-3.2.1.min.js"></script>
+  <script src="static/js/jquery.event.move.js"></script>
+  <script src="static/js/jquery.twentytwenty.js"></script>
+  <script src="static/js/bulma-carousel.min.js"></script>
+  <script src="static/js/bulma-slider.min.js"></script>
+  <script src="static/js/fontawesome.all.min.js"></script>
+
+  <!--MathJax-->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']]
+      },
+      svg: {
+        fontCache: 'global'
+      }
+    };
+  </script>
+  <script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+<body>
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-1 publication-title">SCFlow: Implicitly Learning Style and Content Disentanglement with Flow Models</h1>
+          <h2 class="title is-3">ICCV 2025</h2>
+          <div class="is-size-5 publication-authors">
+            <span class="author-block" style="margin-right: 10px;">Pingchuan Ma<sup>*</sup>,</span>
+            <span class="author-block" style="margin-right: 10px;">Xiaopei Yang<sup>*</sup>,</span>
+            <span class="author-block" style="margin-right: 10px;">Yusong Li,</span>
+            <span class="author-block" style="margin-right: 10px;">Ming Gui,</span>
+            <span class="author-block" style="margin-right: 10px;">Felix Krause,</span><br>
+            <span class="author-block" style="margin-right: 10px;">Johannes Schusterbauer,</span>
+            <span class="author-block" style="margin-right: 10px;">Björn Ommer</span>
+          </div>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block"></span><br>
+            <span class="author-block">CompVis @ LMU Munich&nbsp;&nbsp;*equal contribution</span><br>
+            <span class="author-block"> Munich Center for Machine Learning (MCML)</span><br>
+          </div>
+
+
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <span class="link-block">
+                 <!-- TODO Update arxiv link in href. -->
+                <a href="" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fas fa-file-pdf" style="color: orangered"></i>
+                  </span>
+                  <span>arXiv (coming soon)</span>
+                </a>
+              </span>
+              <!-- TODO Update Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/m990130/SCFlow" target="_blank" rel="noopener noreferrer"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code</span>
+                </a>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <img id="teaser" width="95%" src="static/images/teaser.jpg" alt="Top: The proposed SCFlow works bidirectionally,
+      enabling style-content mixing (forward) and disentangling (reverse) with a single model. 
+      Bottom: Our curated dataset to facilitate training."/>
+    </div>
+  </div>
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <div class="content has-text-justified">
+          <p style="margin-bottom: 20px; margin-top: 10px;">
+            <span style="font-weight: bold; font-size: 1.3em;">TL;DR:</span> We introduce SCFlow (top), a bidirectional model that enables 
+            both style-content mixing and disentangling within a single framework.
+            Additionally, we curate a large-scale dataset (bottom) to facilitate effective learning and evaluation. 
+            Our approach generalizes well across diverse styles and contents, supporting both representation learning and controllable generation tasks.
+          </p> <br> 
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</section>
+
+
+
+<section class="section pt-0  hero is-light">
+  <div class="container is-max-desktop">
+    <!-- Abstract. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <br> <h2 class="title is-3">Overview</h2>
+        <div class="content has-text-justified">
+          <p>
+            Disentangling style and content is fundamentally challenging due to their inherent ambiguity, while existing generative 
+            and discriminative models mainly impose <b>explicit</b> separation criteria, which struggles with the ambiguity of defining where the boundary lies between
+            style and content.
+            To circumvent its challenges, instead of tackling disentanglement directly, we propose <b>SCFlow</b> to <b>implicitly</b> learn disentanglement 
+            by training only for merging style/content in an invertible manner with flow matching. 
+            Thanks to the invertible nature of flow models, we can perform both forward and reverse inference,
+            enabling us to mix and disentangle style and content representations with a single model.
+            Training requires aligned style-content pairs, which existing datasets lack. Hence, we address this with a synthetic dataset 
+            of <b>510,000 samples</b> (51 styles and 10k content instances), ensuring full combinatorial coverage to observe independent style/content variations. 
+            SCFlow infers disentangled representations implicitly, demonstrating zero-shot generalization on benchmarks like ImageNet and WikiArt. Code and data will be released.
+          </p>
+        </div>
+      </div>
+    </div>
+    <!--/ Abstract. -->
+  </div>
+</section>
+
+<section class="section">
+  <div class="container is-max-desktop">
+    <!-- Method. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Method</h2>
+        <div class="content has-text-justified">
+          <!-- # Center the image -->
+            <figure>
+            <img id="method_train" style="width: 90%; margin-left: auto; margin-right: auto; display: block;" 
+              src="static/images/training.png" alt="SCFlow training scheme"/>
+            <figcaption class="has-text-centered">Training: We train our model to extract and merge the corresponding style and content.</figcaption>
+            </figure>
+            <figure>
+            <img id="method_inference" style="width: 90%; margin-left: auto; margin-right: auto; display: block;" 
+              src="static/images/inference.png" alt="SCFlow bidirectional inference scheme"/>
+            <figcaption class="has-text-centered">Bidirectional Inference: Once trained, the model can perform inference from both directions, merging (forward) 
+              or disentangling (reverse) style and content. </figcaption>
+            </figure>
+
+        </div>
+      </div>
+    </div>
+    <!--/ Method. -->
+  </div>
+</section>
+
+
+<section class="section pt-0  hero is-light">
+  <div class="hero-body">
+    <div class="container">
+      <div class="columns is-centered has-text-centered">
+        <div class="column is-four-fifths">
+          <h2 class="title is-3">Results</h2>
+
+          <div class="content has-text-justified">
+            <h3 class="title has-text-centered" style="font-size: 1.5em;">
+              Qualitative Analysis
+            </h3>
+            <p>
+              In the following, we present qualitative results of our method for both forward (mix contents and styes) 
+              and reverse inference (disentangle contents and styles from a single sample). The inference is performed in the latent space of CLIP and 
+              "decoded" back to the image space using unCLIP.
+            </p>
+            <figure>
+            <img id="forward_inf" style="width: 100%; margin-left: auto; margin-right: auto; display: block;" 
+              src="static/images/forward_inference.png" alt="SCFlow training scheme"/>
+            <figcaption class="has-text-centered">Forward inference visualization (zoom in for details) </figcaption>
+            </figure>
+            
+            <figure>
+              <img id="reverse_inf" style="width: 45%; margin-left: auto; margin-right: auto; display: block;" 
+                src="static/images/vis_backward.png" alt="SCFlow training scheme"/>
+              <figcaption class="has-text-centered">Reverse inference visualization</figcaption>
+              </figure>
+
+            <h3 class="title has-text-centered" style="font-size: 1.5em;">
+              Disentanglement of Style and Content Representations
+            </h3>
+            <p>
+              Our method offers a more structured embedding space compared to CLIP (visualized through t-SNE plots). In our embedding space, instances of the same class 
+              form compact clusters, while different classes are clearly separated. Unlike CLIP more dispersed representation, our embeddings naturally organize similar styles 
+              and contents closer together. We show the t-SNE plots of CLIP and our embeddings for content (top), style (mid) and their mixutre (bottom).
+            </p>
+            <div id="results-carousel-horizontal" class="carousel results-carousel">
+              <div class="twoitem">
+                <div class="twentytwenty-container twentytwenty-container-top">
+                  <div class="cmpcontent">
+                    <img src="static/images/0321tsne_single_content_clip.png">
+                  </div>
+                  <div class="cmpcontent">
+                    <img src="static/images/tsne_content_reverse.png">
+                  </div>
+                </div>
+                <div class="twentytwenty-container twentytwenty-container-mid">
+                  <div class="cmpcontent">
+                    <img src="static/images/0321tsne_single_style_clip.png">
+                  </div>
+                  <div class="cmpcontent">
+                    <img src="static/images/tsne_style_reverse.png">
+                  </div>
+                </div>
+                <div class="twentytwenty-container twentytwenty-container-bottom">
+                  <div class="cmpcontent">
+                    <img src="static/images/both_tsne_clip.png">
+                  </div>
+                  <div class="cmpcontent">
+                    <img src="static/images/both_tsne_original.png">
+                  </div>
+                </div>
+
+              </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  $(window).on('load', function() {
+    bulmaCarousel.attach('#results-carousel-horizontal', {
+      slidesToScroll: 1,
+      slidesToShow: 1,
+      loop: true,
+      autoplay: true,
+    });
+
+    bulmaCarousel.attach('#results-carousel-vertical', {
+      slidesToScroll: 1,
+      slidesToShow: 1,
+      loop: true,
+      autoplay: true,
+    });
+
+    $(".twentytwenty-container-top").twentytwenty({
+      before_label: 'CLIP Contents',
+      after_label: 'Our Contents',
+      default_offset_pct: 0.38,
+    });
+    $(".twentytwenty-container-mid").twentytwenty({
+      before_label: 'CLIP Styles',
+      after_label: 'Our Styles',
+      default_offset_pct: 0.4,
+    });
+    $(".twentytwenty-container-bottom").twentytwenty({
+      before_label: 'CLIP Content & Style',
+      after_label: 'Our Content & Style',
+      default_offset_pct: 0.35,
+    });
+  });
+</script>
+
+<section class="section hero">
+  <div class="container is-max-desktop">
+    <!-- Results. -->
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <!-- <h2 class="title is-3">Results</h2> -->
+        <div class="content has-text-justified">
+
+            <h3 class="title has-text-centered">
+              Smooth Interpolation in Pure Latent Spaces
+            </h3>
+            <p>
+              Our model enables smooth and semantically meaningful transitions when interpolating between content and style embeddings obtained from the reverse process. Unlike the original CLIP, 
+              which produces both abrupt changes and convoluted samples, our disentangled representations showcase gradual shifts, as seen in both content (e.g., forest to cityscape, <em>with sample 3 being a nice mixture of both</em>) and style 
+              (e.g., cubism to drip painting) transitions. The concept of content or style is also cleaner than the original CLIP, where the content and style are mixed in a single 
+              embedding (Cartoon style dog and horse; drip paiting depicting a roes).
+            </p>
+
+            <img id="comparison" width="90%" src="static/images/interpolation.png" alt="interpolation"/>
+            <figcaption class="has-text-centered">Visualization of interpolated intermediate data points given pairs of concept (left and right most).</figcaption> <br> 
+            
+            
+            <p>
+              We also measure <i>1) left-hand side table:</i> cosine similarity between the vectors formed by both ends, namely the vectors formed by image latents and text 
+              latent. This should tell us how well does the the interpolation along those trajectories align with the one formed by text. <i>2) right-hand side:</i> CLIP score between 
+              the intermediate points to the given textual embedding (e.g., "dog", "horse", "drip paiting"). These quantitative evaluations further confirm our previous finding: our interpolations 
+              align more consistently with text embeddings, and CLIP scores show a steady semantic transition, whereas CLIP fluctuates unpredictably, e.g., for the first dog-horse pair, 
+              the cosine similarity to dog goes first up and constently down; Similarly, for the 2nd pair (forest-city), a similar pattern can be observed for the similarity to city. 
+              These results highlight the improved smoothness and interpretability of our pure latent space. 
+            </p>
+            <br>
+            <img id="comparison" width="100%" src="static/images/fig_9.jpg" alt="interpolation"/>
+
+            <h3 class="title has-text-centered">
+            Quantitative Evaluation of Latent Representations
+            </h3>
+            <p>
+            Our model achieves the highest NMI scores for both style and content, exceeding the original CLIP embeddings by a large margin.
+            A similar observation can be seen from the FDR, Fisher Discriminant Ratio: $\text{FDR}=\frac{\sigma_{\text{inter}}^2}{\sigma_{\text{intra}}^2}$, calculated using both 
+            inter- and intra-class variance of the embeddings. A higher value of FDR indicates better class separability. Our model achieves the highest FDR, demonstrating better class 
+            separability by forming more distinct clusters for <em>both styles and contents</em>.
+            </p>
+
+            <figure style="text-align: center;">
+            <img id="comparison" width="90%" src="static/images/tab1.jpg" alt="Comparison with other methods"/>
+            </figure>
+
+            <p>
+            Our method effectively balances both content classification and style retrieval, demonstrating strong generalization to unseen data without explicit disentanglement training. 
+            Unlike existing methods that fine-tune embeddings at the cost of content generalization, our model preserves content quality while achieving robust style separation. 
+            Furthermore, our experiments on unseen styles confirm its ability to extract and manipulate new style-content representations, showcasing its versatility.
+            </p>
+            <figure style="text-align: center;">
+            <img id="comparison" width="90%" src="static/images/tab_wikiImg.png" alt="Generalization to other datasets"/>
+            </figure>
+
+          <p class="mt-5">
+           <!-- We refer to the arXiv paper linked above for more details on qualitative, quantitative, and ablation studies. -->
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!--BibTex citation -->
+  <section class="section" id="BibTeX">
+    <div class="container is-max-desktop content">
+      <h2 class="title">BibTeX</h2>
+      <pre><code>TBD
+
+      </code></pre>
+    </div>
+  </section>
+  <!--End BibTex citation -->
+        <!-- @inproceedings{tbd,
+    title={SCFlow: Implicitly Learning Style and Content Disentanglement with Flow Models}, 
+    author={Pingchuan Ma and Xiaopei Yang and Yusong Li and Ming Gui and Felix Krause and Johannes Schusterbauer Björn Ommer},
+    booktitle={ICCV},
+    year={2025}
+  } -->
+
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+
+          <p>
+            This page was built using the <a href="https://github.com/eliahuhorwitz/Academic-project-page-template"
+              target="_blank">Academic Project Page Template</a> which was adopted from the <a
+              href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+            You are free to borrow the source code of this website, we just ask that you link back to this page in the
+            footer. <br> This website is licensed under a <a rel="license"
+              href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative
+              Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
