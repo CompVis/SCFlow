@@ -1,0 +1,17 @@
+numpy==1.26.0
+torch==2.1.0
+torchvision
+lightning==2.5.2
+torchdiffeq
+kornia==0.7.0
+open_clip_torch==2.23.0
+transformers==4.22.0
+xformers==0.0.22.post7
+beartype==0.16.2
+tensorboard
+pillow
+omegaconf
+einops
+h5py
+# for the openai CLIP model
+git+https://github.com/openai/CLIP.git

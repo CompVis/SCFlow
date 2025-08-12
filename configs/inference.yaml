@@ -1,0 +1,38 @@
+model:
+  scale_factor: 0.6304
+  fm:
+    target: scflow.cfm.FlowMatching
+    params:
+      sigma_min: 1.0e-08
+      net_cfg:
+        target: scflow.models.kakaomodels.prior.PriorTransformer
+        params:
+          xf_width: 2048
+          xf_layers: 12
+          xf_heads: 32
+          xf_final_ln: true
+          clip_dim: 1536
+    
+train:
+  lr: 1.0e-05
+  weight_decay: 0.0
+  lr_scheduler_patience: 20
+  cal_metrics: true
+  ema_rate: 0.999
+  ema_update_every: 1
+  ema_update_after_step: 1000
+  use_ema_for_sampling: true
+  checkpoint_callback_params:
+    every_n_train_steps: 800000
+    save_top_k: -1
+    verbose: False
+    save_last: false
+    auto_insert_metric_name: false
+  trainer_params:
+    max_epochs: 40
+    num_sanity_val_steps: 0
+    accumulate_grad_batches: 1
+    log_every_n_steps: 50
+    limit_val_batches: 64
+    val_check_interval: 20000
+    precision: 16
