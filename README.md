@@ -75,10 +75,10 @@ Coming soon
 
 If you use this codebase or otherwise found our work valuable, please cite our paper:
 ```bibtex
-@article{ma2025scflow,
+@inproceedings{ma2025scflow,
   title={SCFlow: Implicitly Learning Style and Content Disentanglement with Flow Models},
   author={Ma, Pingchuan and Yang, Xiaopei and Li, Yusong and Gui, Ming and Krause, Felix and Schusterbauer, Johannes and Ommer, Bj{\"o}rn},
-  journal={arXiv preprint arXiv:2508.03402},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
   year={2025}
 }
 ```
