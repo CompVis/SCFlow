@@ -47,12 +47,32 @@ mkdir ckpts
 cd ckpts
 
 # model checkpoint
-wget -O scflow_last.ckpt https://huggingface.co/CompVis/SCFlow/resolve/main/scflow_last.ckpt?dowload=true
+wget https://huggingface.co/CompVis/SCFlow/resolve/main/scflow_last.ckpt
 
 # unclip checkpoint for visualization
-wget -O sd21-unclip-l.ckpt https://huggingface.co/CompVis/SCFlow/resolve/main/sd21-unclip-l.ckpt?dowload=true
+wget https://huggingface.co/CompVis/SCFlow/resolve/main/sd21-unclip-l.ckpt
 ```
+
+Download the training and test splits of the dataset:
+```bash
+# return to parent dir
+cd ..
+mkdir dataset
+cd dataset
+
+# training split with meta data, e.g., content and style idx and content description etc.
+wget https://huggingface.co/CompVis/SCFlow/resolve/main/train.h5
+
+
+# test split with meta data, e.g., content and style idx and content description etc.
+wget https://huggingface.co/CompVis/SCFlow/resolve/main/test.h5
+
+```
+
+
 ## 🔥 Usage
+The following bash scripts are just naive wrappers for an easy start. You can the args accordingly by calling directly the `training.py` and `inference.py`.
+
 Inference forward (merge content and style)
 ```bash
 bash scripts/inference_forward.sh
@@ -62,16 +82,33 @@ Inference reverse (disentangle content and style from a given reference)
 bash scripts/inference_reverse.sh
 ```
 
-Training (coming soon)
+For training you would need ~22GB with the default setting.
 ```bash
-bash ...
+bash scripts/training.sh
 ```
 
-## 🗂️ Dataset
-Coming soon
+## 🗂️ Dataset Overview
+We hosted the dataset (currently only the clip embeddings and their corresponding metadata due to the space limit) on HF. You can download them as instructed in the above section. The file `train.h5` (same holds for `test.h5`) is an HDF5 dataset storing embeddings and metadata useful for training. You can load it in Python with:
 
-## 🎓 Citation
+```python
+import h5py
+train = h5py.File(”./dataset/train.h5”, ‘r’)
+```
 
+The main groups inside are:
+
+- **images**: Contains CLIP embeddings with shape `(357000, 768)`, representing feature vectors for training samples.
+- **metadata**: Contains descriptive information with keys:
+  - `content_description`
+  - `content_idx`
+  - `style_idx`
+  - `style_name`
+
+> **Note:** Some metadata entries can be duplicated because there are 7000 content variations for training and 3000 for testing. This means the same content with different styles will have identical `content_description` and `content_idx`.
+
+
+
+## 🎓 Citation & Contact
 
 If you use this codebase or otherwise found our work valuable, please cite our paper:
 ```bibtex
@@ -85,7 +122,12 @@ If you use this codebase or otherwise found our work valuable, please cite our p
 }
 ```
 
+In case you encounter any issues or would like to collaborate, plz feel free to drop me a message:
+* Email: p.ma(at)lmu(dot)de
+* [linkedin](https://www.linkedin.com/in/pingchuan-ma-492543156/)
+
 ## 🔥 Updates and Backlogs
 - [x] **[06.08.2025]** [ArXiv](https://arxiv.org/abs/2508.03402) paper avaiable.
-- [x] **[12.08.2025]** Release Inference code and ckpt
-- [ ] Host the dataset and training code
+- [x] **[12.08.2025]** Release Inference code and ckpt.
+- [x] **[31.10.2025]** Host the dataset (latent and meta data) and training code.
+- [ ] We are working on a solution to host the original images.

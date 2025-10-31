@@ -1,6 +1,5 @@
 #!/bin/bash
-export CUDA_VISIBLE_DEVICES=6
-
+export CUDA_VISIBLE_DEVICES="0"
 
 CONFIG_PATH="configs/inference.yaml"
 CHECKPOINT_PATH="ckpts/scflow_last.ckpt"
