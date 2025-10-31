@@ -1,0 +1,15 @@
+*__pycache__*
+.idea
+venv
+
+*.pdf
+*.csv
+*.jpg
+*.jpeg
+*.npy
+*.pt
+*.txt
+*.DS_Store
+*._.DS_Store
+
+
