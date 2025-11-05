@@ -106,11 +106,19 @@ The main groups inside are:
 
 > **Note:** Some metadata entries can be duplicated because there are 7000 content variations for training and 3000 for testing. This means the same content with different styles will have identical `content_description` and `content_idx`.
 
+### Original Images in 512px
+We hosted the original images on HF. You should be able to download them by calling:
+```bash
 
+# The zip file is around 36.5 GB. 
+wget https://huggingface.co/CompVis/SCFlow/resolve/main/raw_512px.zip
+
+```
+It is structured by styles, then different content ids, e.g., `Cubism/00001.jpg ... 10000.jpg`, where the content ids are consistent across different styles.
 
 ## 🎓 Citation & Contact
 
-If you use this codebase or otherwise found our work valuable, please cite our paper:
+If you use this codebase and dataset, or found our work valuable, please cite our paper:
 ```bibtex
 @inproceedings{ma2025scflow,
     author    = {Ma, Pingchuan and Yang, Xiaopei and Li, Yusong and Gui, Ming and Krause, Felix and Schusterbauer, Johannes and Ommer, Bj\"orn},
@@ -129,5 +137,5 @@ In case you encounter any issues or would like to collaborate, plz feel free to 
 ## 🔥 Updates and Backlogs
 - [x] **[06.08.2025]** [ArXiv](https://arxiv.org/abs/2508.03402) paper avaiable.
 - [x] **[12.08.2025]** Release Inference code and ckpt.
-- [x] **[31.10.2025]** Host the dataset (latent and meta data) and training code.
-- [ ] We are working on a solution to host the original images.
+- [x] **[31.10.2025]** Host the dataset (latent and metadata) and training code.
+- [x] **[31.10.2025]** Uploaded the 512px jpg images in HF.
