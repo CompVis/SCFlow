@@ -22,8 +22,22 @@
 <a href="https://arxiv.org/abs/2508.03402"><img src="https://img.shields.io/badge/arXiv-PDF-b31b1b" alt="Paper"></a>
 <a href="https://huggingface.co/CompVis/SCFlow"><img src="https://img.shields.io/badge/HuggingFace-Weights-orange" alt="Paper"></a>
 
+
+🔥 News
+* [06.2026] This repository now also contains the official code for the paper: **catFM: Contrastive-Augmented Flow Matching for
+ Style-Content Disentanglement,** a follow-up work currently under review at TPAMI.
+* [10.2025] Released training code and dataset splits.
+* [10.2025] Released the full 512px image dataset.
+* [08.2025] Released inference code and pretrained checkpoints.
+* [08.2025] ICCV paper available on arXiv.
+
+[!IMPORTANT]
+The original SCFlow (ICCV 2025) implementation remains the default training and inference pipeline. This repository additionally includes the implementation of catFM, a follow-up method currently under review at TPAMI.
+
 This repository contains the official implementation of the paper "SCFlow: Implicitly Learning Style and Content Disentanglement with Flow Models".
 We proposed a flow-matching framework that learns an invertible mapping between style-content mixtures and their separate representations, avoiding explicit disentanglement objectives. Together with the method, we have curated a 510k synthetic dataset consisting of 10k content instances and 51 distinct styles.
+
+
 
 
 <p align="center">
@@ -87,26 +101,43 @@ For training you would need ~22GB with the default setting.
 bash scripts/training.sh
 ```
 
-### Optional CATFM follow-up
-The original SCFlow training and inference paths remain the default. To train the CATFM follow-up variant, use the CATFM config, which switches `train.model_type` to `catfm` and enables label output from the existing HDF5 dataloader:
+### 🐈 catFM Follow-up
+This repository additionally includes the implementation of catFM, a follow-up work built upon SCFlow and currently under review at TPAMI.
+
+Compared to SCFlow, CATFM introduces:
+
+* contrastive regularization on style and content embeddings,
+* multiple endpoint prediction objectives,
+* improved style-content disentanglement and retrieval performance.
+
+The original SCFlow pipeline remains the default. To train CATFM, use:
+
 ```bash
 bash scripts/catfm_training.sh
 ```
 
-You can also switch from the command line:
+You can also customize the training configuration directly from the command line:
+
 ```bash
 python training.py --config configs/catfm_training.yaml train.dml_type=MultiSimilarity train.predict_x0x1=True
 ```
 
-For CATFM metric losses (`train.dml_type != null`), install the optional dependency:
+For catFM metric losses (`train.dml_type != null`), install the optional dependency:
 ```bash
 pip install pytorch-metric-learning
 ```
 
-CATFM checkpoints can be used by the same inference script:
+catFM checkpoints can be used by the same inference script:
 ```bash
-python inference.py --model_type catfm --config configs/inference.yaml --resume_checkpoint path/to/catfm.ckpt --image_c_path path/to/content.jpg --image_s_path path/to/style.jpg --unclip_ckpt ckpts/sd21-unclip-l.ckpt
+python inference.py \
+    --model_type catfm \
+    --config configs/inference.yaml \
+    --resume_checkpoint path/to/catfm.ckpt \
+    --image_c_path path/to/content.jpg \
+    --image_s_path path/to/style.jpg \
+    --unclip_ckpt ckpts/sd21-unclip-l.ckpt
 ```
+
 
 ## 🗂️ Dataset Overview
 We hosted the dataset (currently only the clip embeddings and their corresponding metadata due to the space limit) on HF. You can download them as instructed in the above section. The file `train.h5` (same holds for `test.h5`) is an HDF5 dataset storing embeddings and metadata useful for training. You can load it in Python with:
@@ -150,13 +181,3 @@ If you use this codebase and dataset, or found our work valuable, please cite ou
     pages     = {14919-14929}
 }
 ```
-
-In case you encounter any issues or would like to collaborate, plz feel free to drop me a message:
-* Email: p.ma(at)lmu(dot)de
-* [linkedin](https://www.linkedin.com/in/pingchuan-ma-492543156/)
-
-## 🔥 Updates and Backlogs
-- [x] **[06.08.2025]** [ArXiv](https://arxiv.org/abs/2508.03402) paper avaiable.
-- [x] **[12.08.2025]** Release Inference code and ckpt.
-- [x] **[31.10.2025]** Host the dataset (latent and metadata) and training code.
-- [x] **[31.10.2025]** Uploaded the 512px jpg images in HF.
