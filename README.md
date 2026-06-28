@@ -31,8 +31,8 @@
 * [08.2025] Released inference code and pretrained checkpoints.
 * [08.2025] ICCV paper available on arXiv.
 
-[!IMPORTANT]
-The original SCFlow (ICCV 2025) implementation remains the default training and inference pipeline. This repository additionally includes the implementation of catFM, a follow-up method currently under review at TPAMI.
+> [!IMPORTANT]
+> The original SCFlow (ICCV 2025) implementation remains the default training and inference pipeline. This repository additionally includes the implementation of catFM, a follow-up method currently under review at TPAMI.
 
 This repository contains the official implementation of the paper "SCFlow: Implicitly Learning Style and Content Disentanglement with Flow Models".
 We proposed a flow-matching framework that learns an invertible mapping between style-content mixtures and their separate representations, avoiding explicit disentanglement objectives. Together with the method, we have curated a 510k synthetic dataset consisting of 10k content instances and 51 distinct styles.
