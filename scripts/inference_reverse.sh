@@ -3,6 +3,7 @@ export CUDA_VISIBLE_DEVICES="0"
 
 CONFIG_PATH="configs/inference.yaml"
 CHECKPOINT_PATH="ckpts/scflow_last.ckpt"
+# CHECKPOINT_PATH="ckpts/catfm_last.ckpt"
 OUTPUT_FOLDER_NAME="vis_output"
 REVERSE_INFERENCE=true
 IMAGE_MIX_PATH="image_samples/Cyberpunk/02316.png"
@@ -17,4 +18,5 @@ python inference.py \
     --reverse_inference "$REVERSE_INFERENCE" \
     --image_mix_path "$IMAGE_MIX_PATH" \
     --unclip_ckpt "$UNCLIP_CHECKPOINT_PATH" \
+    --model_type "scflow" \
     --seed $SEED

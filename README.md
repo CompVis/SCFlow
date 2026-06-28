@@ -87,6 +87,27 @@ For training you would need ~22GB with the default setting.
 bash scripts/training.sh
 ```
 
+### Optional CATFM follow-up
+The original SCFlow training and inference paths remain the default. To train the CATFM follow-up variant, use the CATFM config, which switches `train.model_type` to `catfm` and enables label output from the existing HDF5 dataloader:
+```bash
+bash scripts/catfm_training.sh
+```
+
+You can also switch from the command line:
+```bash
+python training.py --config configs/catfm_training.yaml train.dml_type=MultiSimilarity train.predict_x0x1=True
+```
+
+For CATFM metric losses (`train.dml_type != null`), install the optional dependency:
+```bash
+pip install pytorch-metric-learning
+```
+
+CATFM checkpoints can be used by the same inference script:
+```bash
+python inference.py --model_type catfm --config configs/inference.yaml --resume_checkpoint path/to/catfm.ckpt --image_c_path path/to/content.jpg --image_s_path path/to/style.jpg --unclip_ckpt ckpts/sd21-unclip-l.ckpt
+```
+
 ## 🗂️ Dataset Overview
 We hosted the dataset (currently only the clip embeddings and their corresponding metadata due to the space limit) on HF. You can download them as instructed in the above section. The file `train.h5` (same holds for `test.h5`) is an HDF5 dataset storing embeddings and metadata useful for training. You can load it in Python with:
 

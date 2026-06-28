@@ -1,4 +1,6 @@
 *__pycache__*
+__pycache__/
+**/__pycache__/
 .idea
 venv
 
@@ -11,5 +13,14 @@ venv
 *.txt
 *.DS_Store
 *._.DS_Store
+*.pkl
+*.log
+*.zip
+*.tar.gz
 
-
+agent_outputs/*
+dataset/
+ckpts/
+AGENTS.md
+agent_outputs/
+vis_output*

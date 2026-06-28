@@ -1,0 +1,75 @@
+model:
+  scale_factor: 0.6304
+  fm:
+    target: scflow.cfm.FlowMatching
+    params:
+      sigma_min: 1e-8
+      net_cfg:
+        target: scflow.models.kakaomodels.prior.PriorTransformer
+        params:
+          xf_width: 2048
+          xf_layers: 12
+          xf_heads: 32
+          xf_final_ln: True
+          clip_dim: 1536
+
+data:
+  target: scflow.dataloader.CustomDataModule
+  params:
+    train_npy: ./dataset/train.h5
+    val_npy: ./dataset/test.h5
+    num_workers: 4
+    val_num_workers: 2
+    train_group_size: 7000
+    val_group_size: 3000
+    batch_size: 384
+    val_n_samples: 256
+    val_batch_size: 4
+    batches_per_epoch: 20000
+    seed: 42
+    include_labels: True
+
+train:
+  model_type: catfm
+  lr: 1e-5
+  weight_decay: 0.0
+  lr_scheduler_patience: 20
+  dml_type: null
+  ms_alpha_content: 2
+  ms_beta_content: 50
+  ms_alpha_style: 2
+  ms_beta_style: 50
+  lambda_content: 0.5
+  lambda_style: 0.5
+  predict_x1: False
+  predict_x0: False
+  predict_x0x1: False
+  t_conditional: 0.0
+  target_placeholder: gt
+  learnable_placeholder: False
+  style_weight: 0.0
+  ema_rate: 0.999
+  ema_update_every: 1
+  ema_update_after_step: 1000
+  use_ema_for_sampling: True
+  checkpoint_callback_params:
+    every_n_train_steps: 10000
+    save_top_k: -1
+    verbose: True
+    save_last: False
+    auto_insert_metric_name: False
+  trainer_params:
+    max_epochs: 16
+    num_sanity_val_steps: 0
+    accumulate_grad_batches: 1
+    log_every_n_steps: 50
+    limit_val_batches: 64
+    val_check_interval: 10000
+    precision: 16
+  callbacks:
+    - target: lightning.pytorch.callbacks.LearningRateMonitor
+      params:
+        logging_interval: 'step'
+    - target: lightning.pytorch.callbacks.TQDMProgressBar
+      params:
+        refresh_rate: 2000

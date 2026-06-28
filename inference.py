@@ -14,7 +14,7 @@ torch.set_float32_matmul_precision('high')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def parse_args():
-    parser = argparse.ArgumentParser("ArtFM")
+    parser = argparse.ArgumentParser("SCFlow Inference")
     parser.add_argument("--config", type=str, default="configs/inference.yaml")
     parser.add_argument("--resume_checkpoint", type=str, default=None)
     parser.add_argument("--load_weights", type=str, default=None,
@@ -29,6 +29,9 @@ def parse_args():
     parser.add_argument("--test_vis",  default= True, help="visualization")
     parser.add_argument("--unclip_ckpt", type=str, default="None")
     parser.add_argument("--seed", type=int, default=2025, help="random seed for reproducibility")
+    parser.add_argument("--model_type", type=str, default=None, choices=["scflow", "catfm"])
+    parser.add_argument("--pt_path", type=str, default=None, help="optional CLIP embedding .pt file to decode with UnCLIP")
+    parser.add_argument("--indices", type=int, nargs="*", default=None, help="optional sample indices for --pt_path")
 
     known, unknown = parser.parse_known_args()
 
@@ -65,19 +68,31 @@ def init():
     cfg.image_mix_path = args.image_mix_path
     cfg.image_c_path = args.image_c_path
     cfg.image_s_path = args.image_s_path
+    cfg.pt_path = args.pt_path
+    cfg.indices = args.indices
     today = datetime.now().strftime('%Y-%m-%d') 
     exp_name = args.name if exists(args.name) else args.config.rsplit('/')[-2]
     output_path = f"{exp_name}_{today}"
     cfg.result_path = output_path
     cfg.unclip_ckpt = args.unclip_ckpt
+    cfg.model_type = args.model_type or cfg.get("model_type", "scflow")
 
     """ Setup model """
-    ckpt_path = args.resume_checkpoint if exists(args.resume_checkpoint) else "./ckpt/scflow_last.ckpt"
+    ckpt_path = args.resume_checkpoint if exists(args.resume_checkpoint) else "./ckpts/scflow_last.ckpt"
 
 
 
     """ Setup model """
-    module = TrainerModuleSCFlow.load_from_checkpoint(
+    if cfg.model_type == "scflow":
+        module_cls = TrainerModuleSCFlow
+    elif cfg.model_type == "catfm":
+        from scflow.catfm_trainer_module import TrainerModuleCATFM
+
+        module_cls = TrainerModuleCATFM
+    else:
+        raise ValueError(f"Unknown model_type={cfg.model_type}. Expected 'scflow' or 'catfm'.")
+
+    module = module_cls.load_from_checkpoint(
         checkpoint_path=ckpt_path,
         fm_cfg=cfg.model.fm,
         test_vis=args.test_vis,
@@ -115,6 +130,29 @@ if __name__ == "__main__":
     module.eval()
     output_dir = f"{cfg.result_path}"
 
+    if cfg.pt_path is not None:
+        if cfg.unclip_ckpt in [None, "None", ""]:
+            raise ValueError("Provide --unclip_ckpt when using --pt_path.")
+        os.makedirs(output_dir, exist_ok=True)
+        x = torch.as_tensor(torch.load(cfg.pt_path, map_location="cpu"))
+        if x.ndim == 1 and x.shape[0] == 768:
+            x = x.unsqueeze(0).unsqueeze(0)
+        elif x.ndim == 2 and x.shape[-1] == 768:
+            x = x.unsqueeze(1)
+        elif x.ndim == 3 and x.shape[-1] == 768:
+            pass
+        else:
+            raise ValueError(f"Unexpected embedding shape {tuple(x.shape)}. Expected [..., 768].")
+
+        x = x.to(device=module.device, dtype=module.dtype)
+        indices = cfg.indices if cfg.indices is not None else range(x.shape[0])
+        for i in indices:
+            sample = x[i:i + 1]
+            out_path = os.path.join(output_dir, f"unclip_vis_{i:04d}.png")
+            module.get_sample_to_vis(sample, path=out_path)
+            print(f"Saved {out_path}")
+        raise SystemExit(0)
+
     encoder = CLIPEncoder()
     if module.reverse_inference:
         features = encoder.encode_image(cfg.image_mix_path).unsqueeze(0).to(device=module.device, dtype=module.dtype)
@@ -128,7 +166,7 @@ if __name__ == "__main__":
         os.makedirs(output_pred_dir, exist_ok=True)
         for key, tensor in preds.items():
             torch.save(tensor, os.path.join(output_pred_dir, f"clip_pred_{key}_tensor.pt"))
-            module.get_sample_to_vis(tensor, path=os.path.join(output_pred_dir, f"reverse{key}.png"))
+            module.get_sample_to_vis(tensor, path=os.path.join(output_pred_dir, f"reverse_{key}.png"))
     else:
         features_c = encoder.encode_image(cfg.image_c_path).unsqueeze(0).to(device=module.device, dtype=module.dtype)
         features_s = encoder.encode_image(cfg.image_s_path).unsqueeze(0).to(device=module.device, dtype=module.dtype)
@@ -144,4 +182,3 @@ if __name__ == "__main__":
         for key, tensor in preds.items():
             torch.save(tensor, os.path.join(output_pred_dir, f"clip_pred_{key}_tensor.pt"))
             module.get_sample_to_vis(tensor, path=os.path.join(output_pred_dir, f"clip_pred_{key}.png"))
-        

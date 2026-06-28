@@ -105,7 +105,17 @@ def main():
    
 
     """ Setup model """
-    module = TrainerModuleSCFlow(
+    model_type = cfg.train.get("model_type", "scflow")
+    if model_type == "scflow":
+        module_cls = TrainerModuleSCFlow
+    elif model_type == "catfm":
+        from scflow.catfm_trainer_module import TrainerModuleCATFM
+
+        module_cls = TrainerModuleCATFM
+    else:
+        raise ValueError("Unknown train.model_type={}. Expected one of ['catfm', 'scflow'].".format(model_type))
+
+    module_kwargs = dict(
         fm_cfg=cfg.model.fm,
         scale_factor=cfg.model.get("scale_factor", 1.0),
         lr=cfg.train.lr,
@@ -116,6 +126,24 @@ def main():
         use_ema_for_sampling=cfg.train.get("use_ema_for_sampling", True),
         lr_scheduler_patience=cfg.train.get("lr_scheduler_patience", 100),
     )
+    if model_type == "catfm":
+        module_kwargs.update(
+            dml_type=cfg.train.get("dml_type", None),
+            lambda_content=cfg.train.get("lambda_content", 1.0),
+            lambda_style=cfg.train.get("lambda_style", 1.0),
+            ms_alpha_content=cfg.train.get("ms_alpha_content", 2),
+            ms_beta_content=cfg.train.get("ms_beta_content", 50),
+            ms_alpha_style=cfg.train.get("ms_alpha_style", 2),
+            ms_beta_style=cfg.train.get("ms_beta_style", 50),
+            predict_x1=cfg.train.get("predict_x1", False),
+            predict_x0=cfg.train.get("predict_x0", False),
+            predict_x0x1=cfg.train.get("predict_x0x1", False),
+            t_conditional=cfg.train.get("t_conditional", 0.5),
+            style_weight=cfg.train.get("style_weight", 0.0),
+            target_placeholder=cfg.train.get("target_placeholder", "gt"),
+            learnable_placeholder=cfg.train.get("learnable_placeholder", False),
+        )
+    module = module_cls(**module_kwargs)
 
     """ Setup callbacks """ 
     checkpoint_callback = ModelCheckpoint(
@@ -174,6 +202,7 @@ def main():
     # log info
     some_info = {
         'Config': args.config,
+        'Model type': model_type,
         'Name': exp_name,
         'Log dir': log_dir,
         'Params': count_params(module),

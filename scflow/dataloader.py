@@ -120,18 +120,25 @@ class TripletSampler(torch.utils.data.Sampler):
         return self.num_samples
 
     
-def triplet_collate_fn(batch):
+def triplet_collate_fn(batch, group_size=None, include_labels=False):
     embeddings, indices = zip(*batch)
     embeddings = torch.stack(embeddings, dim=0)  # Shape: (batch_size, 3, embedding_dim)
     indices = torch.stack(indices, dim=0)        # Shape: (batch_size, 3)  # Collect indices
-    
+
+    if include_labels:
+        if group_size is None:
+            raise ValueError("group_size is required when include_labels=True")
+        style_labels = indices // group_size
+        content_labels = indices % group_size
+        return embeddings, indices, style_labels.long(), content_labels.long()
+
     return embeddings, indices
   
 
 class CustomDataModule(pl.LightningDataModule):
     def __init__(
         self,
-        train_npy, val_npy,num_workers= 0, val_num_workers= 0, train_group_size=700, val_group_size=300,batch_size=4,val_batch_size=4,batches_per_epoch=20000, val_n_samples=256, seed=42, style_idx=-1, content_idx=-1
+        train_npy, val_npy,num_workers= 0, val_num_workers= 0, train_group_size=700, val_group_size=300,batch_size=4,val_batch_size=4,batches_per_epoch=20000, val_n_samples=256, seed=42, style_idx=-1, content_idx=-1, include_labels=False
     ):
         super().__init__()
         self.train_npy = train_npy
@@ -147,6 +154,7 @@ class CustomDataModule(pl.LightningDataModule):
         self.seed = seed
         self.style_idx = style_idx
         self.content_idx = content_idx
+        self.include_labels = include_labels
 
     def setup(self, stage=None):
         self.train_dataset = CustomDataset(self.train_npy, self.train_group_size)
@@ -184,7 +192,9 @@ class CustomDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             sampler= self.train_sampler,
             num_workers=self.num_workers,
-            collate_fn=lambda batch: triplet_collate_fn(batch)
+            collate_fn=lambda batch: triplet_collate_fn(
+                batch, group_size=self.train_group_size, include_labels=self.include_labels
+            )
         )
 
     def val_dataloader(self):
@@ -193,7 +203,9 @@ class CustomDataModule(pl.LightningDataModule):
             batch_size=self.val_batch_size,
             sampler=self.val_sampler,
             num_workers=self.val_num_workers,
-            collate_fn=lambda batch: triplet_collate_fn(batch)
+            collate_fn=lambda batch: triplet_collate_fn(
+                batch, group_size=self.val_group_size, include_labels=self.include_labels
+            )
         )
     def test_dataloader(self):
         self.val_dataset = CustomDataset(self.val_npy, self.val_group_size)
@@ -209,5 +221,7 @@ class CustomDataModule(pl.LightningDataModule):
             content_idx=self.content_idx
         ),
             num_workers=self.val_num_workers,
-            collate_fn=lambda batch: triplet_collate_fn(batch)
+            collate_fn=lambda batch: triplet_collate_fn(
+                batch, group_size=self.val_group_size, include_labels=self.include_labels
+            )
         )

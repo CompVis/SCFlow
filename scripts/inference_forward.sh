@@ -3,6 +3,7 @@ export CUDA_VISIBLE_DEVICES="0"
 
 CONFIG_PATH="configs/inference.yaml"
 CHECKPOINT_PATH="ckpts/scflow_last.ckpt"
+# CHECKPOINT_PATH="ckpts/catfm_last.ckpt"
 OUTPUT_FOLDER_NAME="vis_output"
 IMAGE_C_PATH="image_samples/Cubism/02316.png"
 IMAGE_S_PATH="image_samples/Drip_Painting/09728.png"
@@ -16,4 +17,5 @@ python inference.py \
     --image_c_path "$IMAGE_C_PATH" \
     --image_s_path "$IMAGE_S_PATH" \
     --unclip_ckpt "$UNCLIP_CHECKPOINT_PATH" \
+    --model_type "scflow" \
     --seed $SEED
